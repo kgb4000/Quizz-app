@@ -2,7 +2,7 @@
 
 var qData = [
 
- question1 = new Question("What was the first year President Obama was elected?", ['2008', '2010', '2014', '2012', '2016'], '2012'),
+ question1 = new Question("What was the first year President Obama was elected?", ['2012', '2010', '2014', '2008', '2016'], '2008'),
 
  question2 = new Question("What state was President Obama born?",['California', 'Illinois','Idaho', 'Hawaii', 'Maryland'],"Hawaii"),
 
@@ -24,6 +24,7 @@ var Score = 0;
 var $nextBtn = $('#next-btn').hide();
 var $reset = $('#reset-btn').hide();
 var $submit = $('#submit-btn').hide().attr('disabled', 'disabled');
+var $submitReset = $('submit-reset');
 
 // Start the quiz
 function startQuizz(){
@@ -33,6 +34,7 @@ function startQuizz(){
 		$question.empty();
 		$choices.empty();
 		renderQuestion(qData[0]);
+		questionCounter = 1;
 	});
 }
 startQuizz();
@@ -44,12 +46,7 @@ function Question(question, choices, answer) {
 	this.answer = answer;
 }
 
-questionCounter;
-
 function renderQuestion(q) {
-
-
-	checkQuestions();
 
 	$question.html('<h1>' + q.question + '</h1>'); 
 
@@ -89,7 +86,7 @@ function renderQuestion(q) {
 				else {
 					$results.text('That is incorrect, the correct answer is ' + $correctAnswer);
 				}
-				$('.submit-reset').append($nextBtn);
+				$submitReset.append($nextBtn);
 			});
 		});
 	});
@@ -103,13 +100,13 @@ function checkQuestions() {
 		$submit.hide();
 		$results.text('You finished the quiz');
 		$results.after($reset);
+		console.log(questionCounter);
 	}
 	else{
 		nextQuestion();
-		console.log("Running checkQuestions");
 	}
 }
-
+checkQuestions();
 
 // Next question
 function nextQuestion(){
@@ -121,8 +118,10 @@ function nextQuestion(){
 		$results.text('');
 		$(this).hide();
 		$reset.hide();
+		$submit.hide();
 		$submit.attr('disabled', 'disabled');
 		renderQuestion(qData[questionCounter]);
+		console.log(questionCounter);
 	});
 }
 
@@ -130,40 +129,24 @@ function nextQuestion(){
 function resetQuiz() {
 	$reset.on ('click', function(e) {
 		e.preventDefault();
-		questionCounter = 0;
-		Score = 0;
-		$header.show();
-		$start.show();
-		$question.empty();
-		$choices.empty();
-		$question.empty();
-		$choices.empty();
-		$results.text('');
-		$(this).hide();
-		$submit.hide();
-		$submit.attr('disabled', 'disabled');
+		if(confirm('Are you sure?')){
+			questionCounter = 0;
+			Score = 0;
+			$header.show();
+			$start.show();
+			$question.empty();
+			$choices.empty();
+			$question.empty();
+			$choices.empty();
+			$nextBtn.hide();
+			$results.text('');
+			$(this).hide();
+			$submit.hide();
+			$submit.attr('disabled', 'disabled');
+		}
 	});
 }
 resetQuiz();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
