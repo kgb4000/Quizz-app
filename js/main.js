@@ -1,85 +1,151 @@
-/*********************************
+// Questions
 
-Construtor Notation for Quiz App
+var qData = [
 
-*********************************/
+ question1 = new Question("What was the first year President Obama was elected?", ['2008', '2010', '2014', '2012', '2016'], '2012'),
 
-$(function() {
+ question2 = new Question("What state was President Obama born?",['California', 'Illinois','Idaho', 'Hawaii', 'Maryland'],"Hawaii"),
 
-	var $content = $(".content");
-	var $questions = $('#questions');
-	var $choices = $('#choices');
-	var $results = $('#results');
-	var Score = 0;
-	var $nextButton = $('<a id="next-button" href="#">Next question</a>').fadeIn(3000);
+ question3 = new Question("What name of the Pesident's dog?",['Alabama', 'Illinois','Idaho', 'Mable', 'Maryland'],"Mable")
+];
 
-	$questions.hide().fadeIn(1000);
-	$choices.hide().fadeIn(3000);
+// First page
+var $header = $('header');
+var $start = $('.start-quizz-btn');
 
-	// Constructor function for questions
+// Start Question page
+var $question = $('.question');
+var $choices = $('.choices');
+var $results = $('.results').hide();;
+var questionCounter = 0;
+var Score = 0;
 
-	function Questions(question, choices, correctAnswer) {
-		this.question = question;
-		this.choices = choices;
-		this.correctAnswer = correctAnswer;
+// Btns
+var $nextBtn = $('#next-btn').hide();
+var $reset = $('#reset-btn').hide();
+var $submit = $('#submit-btn').hide().attr('disabled', 'disabled');
+
+// Start the quiz
+function startQuizz(){
+	$start.on('click', function() {
+		$header.hide();
+		$start.hide();
+		$question.empty();
+		$choices.empty();
+		renderQuestion(qData[0]);
+	});
+}
+startQuizz();
+
+// Constructor function for question app
+function Question(question, choices, answer) {
+	this.question = question;
+	this.choices = choices;
+	this.answer = answer;
+}
+
+questionCounter;
+
+function renderQuestion(q) {
+
+
+	checkQuestions();
+
+	$question.html('<h1>' + q.question + '</h1>'); 
+
+	// Loop through choices to add radio buttons
+	for(var i = 0; i < q.choices.length; i++){
+		$choices.append('<li class="line-element"><input type="radio" id=' + q.choices[i] + ' name="choices" value=' + q.choices[i] + ' /><label for=' + q.choices[i] + '>' + q.choices[i] + '</label></li>');
 	}
 
-	var question1 = new Questions('What was the first year President Obama was elected?',['1989', '2001', '2006', '2010', '2012'], '2012');
+	//Add submit button
+	$submit.show();
 
-	var question2 = new Questions('What is the color of the White House?', ['White', 'Red', 'Pink', 'Black', 'Purple'], 'White');
+	// Add reset button
+	$reset.show();
 
-	// Insert questions into page
-	$questions.text(question1.question);
+	var $correctAnswer = q.answer;
 
-	var $correctAnswer = question1.correctAnswer;
-
-	// Loop through possible answers and insert into page
-	for(var i = 0; i < question1.choices.length; i++){
-		$choices.append('<div class="line-elements"><input type="radio" value=' +question1.choices[i] +' name="choices" /><label id="choice">' + question1.choices[i] + '</label></div>');
-	}
-	// Add submit button
-	$('div:last').after('<input type="submit" id="button" value="Submit" />');
-
-	// Get value of input checked by user for attribute value, WOW.
 	$('input[type="radio"]').on('click', function() {
-		$("input[type='radio']:checked").each(function() {
-        var userChoice = $(this).attr("value");
-        console.log(userChoice);
-    
-	    $('#button').on('click', function(e) {
-	    	e.preventDefault();
-	    	$(this).attr('disabled', 'disabled');
-	    	console.log('What');
+		$('input[type="radio"]:checked').each(function() {
+			var userChoice = $(this).attr('value');
+			console.log(userChoice);
 
-	    	if(userChoice == $correctAnswer){
-	        	console.log('Yes');
-	        	$results.html($correctAnswer + ' is correctamundo');
-	        	Score++;
-	        	console.log(Score);
-	        }
-	        else {
-	        	$results.html('That is incorrect');
-	        }
+			if($('input[type="radio"]:checked')){
+				$submit.removeAttr('disabled');
+			}
 
-	      $results.after($nextButton);
+			$submit.on('click', function(e) {
+				e.preventDefault();
+				$('input[type="radio"]').attr('disabled', true);
+				$(this).hide();
+				$results.show();
+				$nextBtn.show();
 
-	    });
-
-	  });  
-        
+				if(userChoice === $correctAnswer){
+					$results.text('That is correct');
+					Score++;
+				}
+				else {
+					$results.text('That is incorrect, the correct answer is ' + $correctAnswer);
+				}
+				$('.submit-reset').append($nextBtn);
+			});
+		});
 	});
+}
 
-	// Click next button to go to next question
+function checkQuestions() {
+	if(questionCounter === qData.length){
+		console.log(questionCounter);
+		console.log(qData.length);
+		$nextBtn.hide();
+		$submit.hide();
+		$results.text('You finished the quiz');
+		$results.after($reset);
+	}
+	else{
+		nextQuestion();
+		console.log("Running checkQuestions");
+	}
+}
 
-	$nextButton.on('click', function() {
-		console.log('next Question');
 
-		$questions.text(question1.question).fadeOut(1000);
-		$question1.choices.fadeOut(1000);
-
+// Next question
+function nextQuestion(){
+	$nextBtn.on('click', function(e) {
+		e.preventDefault();
+		questionCounter++;
+		$question.empty();
+		$choices.empty();
+		$results.text('');
+		$(this).hide();
+		$reset.hide();
+		$submit.attr('disabled', 'disabled');
+		renderQuestion(qData[questionCounter]);
 	});
+}
 
-});
+// Reset 
+function resetQuiz() {
+	$reset.on ('click', function(e) {
+		e.preventDefault();
+		questionCounter = 0;
+		Score = 0;
+		$header.show();
+		$start.show();
+		$question.empty();
+		$choices.empty();
+		$question.empty();
+		$choices.empty();
+		$results.text('');
+		$(this).hide();
+		$submit.hide();
+		$submit.attr('disabled', 'disabled');
+	});
+}
+resetQuiz();
+
 
 
 
